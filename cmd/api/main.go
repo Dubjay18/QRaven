@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"log"
 	"qraven/internal/config"
+	"qraven/internal/models/migrations"
 	"qraven/pkg/repository/storage"
 	"qraven/pkg/repository/storage/postgresql"
 	"qraven/pkg/repository/storage/redis"
 	"qraven/pkg/router"
 	"qraven/utils"
+
 	"github.com/go-playground/validator/v10"
 )
 
@@ -22,11 +24,11 @@ func main(){
 	db := storage.Connection()
 
 
-	// if configuration.Database.Migrate {
-	// 	migrations.RunAllMigrations(db)
-	// 	// call the seed function
-	// 	seed.SeedDatabase(db.Postgresql)
-	// }
+	if configuration.Database.Migrate {
+		migrations.RunAllMigrations(db)
+		// call the seed function
+		// seed.SeedDatabase(db.Postgresql)
+	}
 
 	r := router.Setup(logger, validatorRef, db, &configuration.App)
 	utils.LogAndPrint(logger, fmt.Sprintf("Server is starting at 127.0.0.1:%s", configuration.Server.Port))

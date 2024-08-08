@@ -3,10 +3,12 @@ package postgresql
 import (
 	"fmt"
 	"log"
+	"net/url"
 	"os"
 	"qraven/internal/config"
 	"qraven/pkg/repository/storage"
 	"qraven/utils"
+	"strconv"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -26,20 +28,20 @@ func ConnectToDatabase(logger *utils.Logger, configDatabases config.Database) *g
 }
 
 func connectToDb(host, user, password, dbname, port, sslmode, timezone string, logger *utils.Logger) *gorm.DB {
-	// if _, err := strconv.Atoi(port); err != nil {
-	// 	u, err := url.Parse(port)
-	// 	if err != nil {
-	// 		utils.LogAndPrint(logger, fmt.Sprintf("parsing url %v to get port failed with: %v", port, err))
-	// 		panic(err)
-	// 	}
+	if _, err := strconv.Atoi(port); err != nil {
+		u, err := url.Parse(port)
+		if err != nil {
+			utils.LogAndPrint(logger, fmt.Sprintf("parsing url %v to get port failed with: %v", port, err))
+			panic(err)
+		}
 
-	// 	detectedPort := u.Port()
-	// 	if detectedPort == "" {
-	// 		utils.LogAndPrint(logger, fmt.Sprintf("detecting port from url %v failed with: %v", port, err))
-	// 		panic(err)
-	// 	}
-	// 	port = detectedPort
-	// }
+		detectedPort := u.Port()
+		if detectedPort == "" {
+			utils.LogAndPrint(logger, fmt.Sprintf("detecting port from url %v failed with: %v", port, err))
+			panic(err)
+		}
+		port = detectedPort
+	}
 fmt.Println(port)
 	dsn := fmt.Sprintf("host=%v user=%v password=%v dbname=%v port=%v sslmode=%v TimeZone=%v", host, user, password, dbname, port, sslmode, timezone)
 fmt.Println(dsn)
