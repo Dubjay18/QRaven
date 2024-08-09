@@ -6,6 +6,7 @@ import (
 	"qraven/internal/models"
 	"qraven/pkg/repository/storage/postgresql"
 	"qraven/utils"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 	"gorm.io/gorm"
@@ -27,9 +28,9 @@ func CreateUser(req models.CreateUserRequest, db *gorm.DB) (gin.H, int, error) {
 	}
 	user = models.User{
 		ID: utils.GenerateUUID(),
-		FirstName: req.FirstName,
-		LastName: req.LastName,
-		Email: req.Email,
+		FirstName: strings.ToLower(req.FirstName),
+		LastName: strings.ToLower(req.LastName),
+		Email: strings.ToLower(req.Email),
 		Password:hashedPassword,
 		Role: models.UserRole,
 	}

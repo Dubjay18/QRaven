@@ -11,6 +11,7 @@ func AuthMigrationModels() []interface{} {
 		&models.Ticket{},
 		&models.Payments{},
 		&models.Notification{},
+		&models.AccessToken{},
 	} // an array of db models, example: User{}
 }
 

@@ -5,11 +5,31 @@ import (
 
 	"gorm.io/gorm"
 )
-const (
-	AdminRole = "admin"
-	UserRole  = "user"
-	OrganizerRole = "organizer"
+
+type RoleName string
+type RoleId int
+
+
+
+type DefaultIdentity struct {
+	User       RoleId
+	Admin 	RoleId
+	Organizer RoleId
+}
+
+var RoleIdentity = DefaultIdentity{
+	User:       1,
+	Organizer: 2,
+	Admin:      3,	
+}
+
+var (
+	AdminRole     RoleName = "admin"
+	UserRole      RoleName = "user"
+	OrganizerRole RoleName = "organizer"
 )
+
+
 
 type User struct {
 	ID       string    `json:"id" gorm:"primaryKey"`
@@ -20,6 +40,7 @@ type User struct {
 	Role    string `json:"role"`
 	gorm.Model
 }
+
 
 type CreateUserRequest struct {
 	FirstName string `json:"first_name" binding:"required"`
