@@ -46,16 +46,25 @@ func ResponseMessage(code int, status string, name string, message string, err i
 		err = message
 	}
 
+	var errorField interface{}
+    if err != nil {
+        if e, ok := err.(error); ok {
+            errorField = e.Error()
+        } else {
+            errorField = err
+        }
+    }
 	res := Response{
 		StatusCode: code,
 		Name:       name,
 		Status:     status,
 		Message:    message,
-		Error:      err,
+		Error:      errorField,
 		Data:       data,
 		Pagination: pagination,
 		Extra:      extra,
 	}
+
 	return res
 }
 
@@ -64,11 +73,45 @@ func UnauthorisedResponse(code int, status string, name string, message string) 
 	return res
 }
 
-func ValidationResponse(err error, validate *validator.Validate) validator.ValidationErrorsTranslations {
+
+func ValidationResponse(err error, validate *validator.Validate, obj interface{}) map[string]string {
 	errs := err.(validator.ValidationErrors)
 	english := en.New()
 	uni := ut.New(english, english)
 	trans, _ := uni.GetTranslator("en")
 	_ = enTranslations.RegisterDefaultTranslations(validate, trans)
-	return errs.Translate(trans)
+
+	// Custom map to hold simplified error messages
+	errorMessages := make(map[string]string)
+
+	// Iterate over the validation errors and format them using JSON tags
+	for _, e := range errs {
+		// Get the JSON field name
+		jsonFieldName := getJSONFieldName(obj, e.StructField())
+		errorMessages[jsonFieldName] = getCustomErrorMessage(e)
+	}
+
+	return errorMessages
+}
+func getCustomErrorMessage(err validator.FieldError) string {
+	switch err.Tag() {
+	case "required":
+		return "This field is required."
+	case "email":
+		return "Invalid email format."
+	default:
+		return "Invalid value."
+	}
+}
+func getJSONFieldName(obj interface{}, fieldName string) string {
+	t := reflect.TypeOf(obj)
+	field, found := t.FieldByName(fieldName)
+	if !found {
+		return fieldName // Fallback to the struct field name if JSON tag is not found
+	}
+	jsonTag := field.Tag.Get("json")
+	if jsonTag == "" {
+		return fieldName // Fallback to the struct field name if JSON tag is not found
+	}
+	return jsonTag
 }

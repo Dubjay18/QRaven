@@ -37,7 +37,7 @@ type User struct {
 	LastName  string `json:"last_name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
-	Role    string `json:"role"`
+	Role    RoleId `json:"role"`
 	gorm.Model
 }
 
@@ -57,6 +57,20 @@ type CreateUserResponse struct {
 	Email    string `json:"email" binding:"required,email"`
 	Role    string `json:"role"`
 }
+
+func (c *User) GetRoleName() RoleName {
+	switch c.Role {
+	case RoleIdentity.Admin:
+		return AdminRole
+	case RoleIdentity.User:
+		return UserRole
+	case RoleIdentity.Organizer:
+		return OrganizerRole
+	default:
+		return UserRole
+	}
+}
+
 
 func (u *User) GetUserByEmail(db *gorm.DB, email string) (*User, error) {
 	var user User

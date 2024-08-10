@@ -32,6 +32,8 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 	// routers
 	ApiVersion := "api/v1"
 	api := r.Group(ApiVersion)
+	Auth(r, ApiVersion, validator, db, logger)
+	
 	api.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status_code": 200,
