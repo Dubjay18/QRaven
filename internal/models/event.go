@@ -15,3 +15,34 @@ type Event struct {
 	Organizer   User `json:"organizer" gorm:"foreignKey:OrganizerID"`
 	gorm.Model
 }
+
+type CreateEventRequest struct {
+	Title       string `json:"title" binding:"required"`
+	Description string `json:"description" binding:"required"`
+	StartDate   string `json:"start_date" binding:"required"`
+	EndDate     string `json:"end_date" binding:"required"`
+	Location    string `json:"location"`
+	TicketPrice float64 `json:"ticket_price"`
+	Capacity    int    `json:"capacity" binding:"required"`
+	OrganizerID string `json:"organizer_id" binding:"required"`
+}
+
+type CreateEventResponse struct {
+	ID          string `json:"id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	StartDate   string `json:"start_date"`
+	EndDate     string `json:"end_date"`
+	Location    string `json:"location"`
+	TicketPrice float64 `json:"ticket_price"`
+	Capacity    int    `json:"capacity"`
+	OrganizerID string `json:"organizer_id"`
+}
+
+
+func (event *Event) CreateEvent(db *gorm.DB) error {
+	if err := db.Create(&event).Error; err != nil {
+		return err
+	}
+	return nil
+}
