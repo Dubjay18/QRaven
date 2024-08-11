@@ -124,3 +124,23 @@ func Login(req models.UserLoginRequest, db *gorm.DB) (gin.H, int, error) {
 
 	return reponseData, http.StatusOK, nil
 }
+
+func LogoutUser(access_uuid, owner_id string, db *gorm.DB) (gin.H, int, error) {
+
+	var (
+		responseData gin.H
+	)
+
+	access_token := models.AccessToken{ID: access_uuid, OwnerID: owner_id}
+
+	// revoke user access_token to invalidate session
+	err := access_token.RevokeAccessToken(db)
+
+	if err != nil {
+		return responseData, http.StatusInternalServerError, fmt.Errorf("error revoking user session: " + err.Error())
+	}
+
+	responseData = gin.H{}
+
+	return responseData, http.StatusOK, nil
+}

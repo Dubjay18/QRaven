@@ -6,8 +6,10 @@ import (
 	"qraven/pkg/repository/storage"
 	authService "qraven/services/auth"
 	"qraven/utils"
+
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt"
 )
 
 type Controller struct {
@@ -173,4 +175,36 @@ func (base *Controller) Login(c *gin.Context) {
 		rd := utils.BuildSuccessResponse(code, "login successful", res)
 		c.JSON(code, rd)
 	}
+}
+
+
+func (base *Controller) LogoutUser(c *gin.Context) {
+	claims, exists := c.Get("userClaims")
+	if !exists {
+		rd := utils.BuildErrorResponse(http.StatusBadRequest, "error", "unable to get user claims", nil, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	userClaims := claims.(jwt.MapClaims)
+
+	access_uuid, _ := userClaims["access_uuid"].(string)
+	owner_id, ok := userClaims["user_id"].(string)
+	if !ok {
+		rd := utils.BuildErrorResponse(http.StatusBadRequest, "error", "unable to get access id", nil, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	respData, code, err := authService.LogoutUser(access_uuid, owner_id, base.Db.Postgresql)
+	if err != nil {
+		rd := utils.BuildErrorResponse(code, "error", err.Error(), err, nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	base.Logger.Info("user logout successfully")
+
+	rd := utils.BuildSuccessResponse(http.StatusOK, "user logout successfully", respData)
+	c.JSON(http.StatusOK, rd)
 }
