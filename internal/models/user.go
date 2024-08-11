@@ -58,6 +58,11 @@ type CreateUserResponse struct {
 	Role    string `json:"role"`
 }
 
+type UserLoginRequest struct {
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6"`
+}
+
 func (c *User) GetRoleName() RoleName {
 	switch c.Role {
 	case RoleIdentity.Admin:
@@ -72,7 +77,7 @@ func (c *User) GetRoleName() RoleName {
 }
 
 
-func (u *User) GetUserByEmail(db *gorm.DB, email string) (*User, error) {
+func (u User) GetUserByEmail(db *gorm.DB, email string) (*User, error) {
 	var user User
 	if err := db.Where("email = ?", email).First(&user).Error; err != nil {
 		return nil, err

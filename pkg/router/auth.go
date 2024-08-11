@@ -19,6 +19,7 @@ func Auth(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *s
 		authUrl.POST("/register", auth.CreateRegularUser)
 		authUrl.POST("/register/admin", auth.CreateAdminUser)
 		authUrl.POST("register/organizer", auth.CreateOrganizerUser)
+		authUrl.POST("/login", auth.Login)
 	}
 
 

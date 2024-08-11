@@ -74,3 +74,53 @@ tokenData, err := middleware.CreateToken(user)
 
 	return reponseData, http.StatusCreated, nil  
 }
+
+
+func Login(req models.UserLoginRequest, db *gorm.DB) (gin.H, int, error) {
+	var (
+		user         = models.User{}
+		responseData gin.H
+	)
+		// Check if the user email exists
+		exists := postgresql.CheckExists(db, &user, "email = ?", req.Email)
+		if !exists {
+			return responseData, http.StatusBadRequest, fmt.Errorf("invalid credentials")
+		}
+	
+	userData, err := user.GetUserByEmail(db, req.Email)
+	if err != nil {
+		return nil, http.StatusNotFound, errors.New("user not found")
+	}
+	if !utils.CompareHash(req.Password, user.Password) {
+		return nil, http.StatusUnauthorized, errors.New("invalid password")
+	}
+	tokenData, err := middleware.CreateToken(user)
+	if err != nil {
+		return responseData, http.StatusInternalServerError, fmt.Errorf("error saving token: " + err.Error())
+	}
+
+	tokens := map[string]string{
+		"access_token": tokenData.AccessToken,
+		"exp":          strconv.Itoa(int(tokenData.ExpiresAt.Unix())),
+	}
+
+	access_token := models.AccessToken{ID: tokenData.AccessUuid, OwnerID: user.ID}
+
+	err = access_token.CreateAccessToken(db, tokens)
+
+	if err != nil {
+		return responseData, http.StatusInternalServerError, fmt.Errorf("error saving token: " + err.Error())
+	}
+	reponseData := gin.H{
+		"user": models.CreateUserResponse{
+			ID: userData.ID,
+			FirstName: userData.FirstName,
+			LastName: userData.LastName,
+			Email: userData.Email,
+			Role: string(userData.GetRoleName()),
+		},
+		"access_token": tokenData.AccessToken,
+	}
+
+	return reponseData, http.StatusOK, nil
+}

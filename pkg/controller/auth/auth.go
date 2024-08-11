@@ -142,3 +142,35 @@ func (base *Controller) CreateOrganizerUser(c *gin.Context) {
 				c.JSON(code, rd)
 			}
 		}
+
+func (base *Controller) Login(c *gin.Context) {
+	var req models.UserLoginRequest
+	if err := c.ShouldBindJSON(&req); err != nil {
+		var rd utils.Response
+
+		if ve, ok := err.(validator.ValidationErrors); ok {
+			rd = utils.BuildErrorResponse(http.StatusBadRequest, "error","failed to validate request",utils.ValidationResponse(ve, base.Validator,req),nil)
+			c.JSON(http.StatusBadRequest, rd)
+			return
+		}
+		rd = utils.BuildErrorResponse(http.StatusBadRequest, "error","failed to parse request",err,nil)
+		c.JSON(http.StatusBadRequest, rd)
+		return
+	}
+
+	// validate request
+	if err := base.Validator.Struct(req); err != nil {
+		rd := utils.BuildErrorResponse(http.StatusUnprocessableEntity, "error","failed to validate request",utils.ValidationResponse(err, base.Validator,req),nil)
+		c.JSON(http.StatusUnprocessableEntity, rd)
+		return
+	}
+
+	if res, code, err := authService.Login(req, base.Db.Postgresql); err != nil {
+		rd := utils.BuildErrorResponse(code, "error","failed to login",err,nil)
+		c.JSON(code, rd)
+		return
+	} else {
+		rd := utils.BuildSuccessResponse(code, "login successful", res)
+		c.JSON(code, rd)
+	}
+}
