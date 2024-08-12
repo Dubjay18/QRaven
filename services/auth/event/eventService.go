@@ -1,21 +1,25 @@
 package eventService
 
 import (
+	"errors"
 	"net/http"
 	"qraven/internal/models"
 	"qraven/pkg/repository/storage"
+	"qraven/pkg/repository/storage/postgresql"
 	"qraven/utils"
 )
 
-
-
 func CreateEvent(req models.CreateEventRequest, db *storage.Database) (models.CreateEventResponse, int, error) {
+	//check if event exists
+	if ok := postgresql.CheckExistsInTable(db.Postgresql, "events", "title = ?, location = ?, organizer_id = ?", req.Title, req.Location, req.OrganizerID); ok {
+		return models.CreateEventResponse{}, http.StatusConflict, errors.New("event with this title, location and organizer already exists")
+	}
 	// create event
 	event := models.Event{}
 	var responseData models.CreateEventResponse
 	event = models.Event{
 		ID:          utils.GenerateUUID(),
-		Title:        req.Title,
+		Title:       req.Title,
 		Description: req.Description,
 		StartDate:   req.StartDate,
 		EndDate:     req.EndDate,
@@ -42,5 +46,5 @@ func CreateEvent(req models.CreateEventRequest, db *storage.Database) (models.Cr
 	}
 
 	return responseData, http.StatusCreated, nil
-	
+
 }
