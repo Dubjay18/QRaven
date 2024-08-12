@@ -1,14 +1,14 @@
 package router
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"net/http"
 	"qraven/internal/config"
 	"qraven/pkg/middleware"
 	"qraven/pkg/repository/storage"
 	"qraven/utils"
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
-	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Database, appConfiguration *config.App) *gin.Engine {
@@ -33,7 +33,8 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 	ApiVersion := "api/v1"
 	api := r.Group(ApiVersion)
 	Auth(r, ApiVersion, validator, db, logger)
-	
+	Event(r, ApiVersion, validator, db, logger)
+
 	api.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
 			"status_code": 200,
@@ -41,7 +42,6 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 			"status":      http.StatusOK,
 		})
 	})
-
 
 	r.NoRoute(func(c *gin.Context) {
 		c.JSON(http.StatusNotFound, gin.H{

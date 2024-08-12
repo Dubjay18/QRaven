@@ -11,8 +11,8 @@ import (
 
 func CreateEvent(req models.CreateEventRequest, db *storage.Database) (models.CreateEventResponse, int, error) {
 	//check if event exists
-	if ok := postgresql.CheckExistsInTable(db.Postgresql, "events", "title = ?, location = ?, organizer_id = ?", req.Title, req.Location, req.OrganizerID); ok {
-		return models.CreateEventResponse{}, http.StatusConflict, errors.New("event with this title, location and organizer already exists")
+	if ok := postgresql.CheckExistsInTable(db.Postgresql, "events", "title = ? AND location = ? AND organizer_id = ?", req.Title, req.Location, req.OrganizerID); ok {
+		return models.CreateEventResponse{}, http.StatusConflict, errors.New("event with this title, location, and organizer already exists")
 	}
 	// create event
 	event := models.Event{}

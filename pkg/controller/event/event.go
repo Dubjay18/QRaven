@@ -3,6 +3,7 @@ package event
 import (
 	"net/http"
 	"qraven/internal/models"
+	"qraven/pkg/middleware"
 	"qraven/pkg/repository/storage"
 	eventService "qraven/services/auth/event"
 	"qraven/utils"
@@ -20,6 +21,7 @@ type Controller struct {
 func (base *Controller) CreateEvent(c *gin.Context) {
 	// create event
 	var req models.CreateEventRequest
+	req.OrganizerID, _ = middleware.GetIdFromToken(c)
 	if err := c.ShouldBindJSON(&req); err != nil {
 		var rd utils.Response
 
