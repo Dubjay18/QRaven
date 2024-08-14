@@ -1,15 +1,14 @@
 package event
 
 import (
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"qraven/internal/models"
 	"qraven/pkg/middleware"
 	"qraven/pkg/repository/storage"
 	eventService "qraven/services/auth/event"
 	"qraven/utils"
-
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 type Controller struct {
@@ -50,6 +49,20 @@ func (base *Controller) CreateEvent(c *gin.Context) {
 		return
 	} else {
 		rd := utils.BuildSuccessResponse(code, "event created successfully", res)
+		c.JSON(code, rd)
+	}
+}
+
+func (base *Controller) GetEvent(c *gin.Context) {
+	// get event
+	eventId := c.Params.ByName("id")
+
+	if res, code, err := eventService.GetEventByID(eventId, base.Db); err != nil {
+		rd := utils.BuildErrorResponse(code, "error", "failed to get event", err, nil)
+		c.JSON(code, rd)
+		return
+	} else {
+		rd := utils.BuildSuccessResponse(code, "event retrieved successfully", res)
 		c.JSON(code, rd)
 	}
 }

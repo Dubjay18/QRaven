@@ -48,3 +48,28 @@ func CreateEvent(req models.CreateEventRequest, db *storage.Database) (models.Cr
 	return responseData, http.StatusCreated, nil
 
 }
+
+func GetEventByID(eventId string, db *storage.Database) (models.GetEventResponse, int, error) {
+	var responseData models.GetEventResponse
+
+	event := models.Event{
+		ID: eventId,
+	}
+	err := event.GetEventByID(db.Postgresql)
+	if err != nil {
+		return responseData, http.StatusNotFound, err
+	}
+
+	return models.GetEventResponse{
+		ID:          event.ID,
+		Title:       event.Title,
+		Description: event.Description,
+		StartDate:   event.StartDate,
+		EndDate:     event.EndDate,
+		Location:    event.Location,
+		TicketPrice: event.TicketPrice,
+		Capacity:    event.Capacity,
+		OrganizerID: event.OrganizerID,
+	}, http.StatusOK, nil
+
+}

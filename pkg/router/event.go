@@ -2,14 +2,13 @@ package router
 
 import (
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"qraven/internal/models"
 	"qraven/pkg/controller/event"
 	"qraven/pkg/middleware"
 	"qraven/pkg/repository/storage"
 	"qraven/utils"
-
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 func Event(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *storage.Database, logger *utils.Logger) *gin.Engine {
@@ -18,6 +17,7 @@ func Event(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *
 	eventUrl := r.Group(fmt.Sprintf("%v/event", ApiVersion))
 	{
 		eventUrl.POST("/create", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer), event.CreateEvent)
+		eventUrl.GET("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer, models.RoleIdentity.User, models.RoleIdentity.Admin), event.GetEvent)
 	}
 
 	return r
