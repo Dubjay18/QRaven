@@ -38,7 +38,7 @@ func (base *Controller) CreateEvent(c *gin.Context) {
 	// validate request
 	err := base.Validator.Struct(req)
 	if err != nil {
-		rd := utils.BuildErrorResponse(http.StatusUnprocessableEntity, "eror", "failed to validate request", utils.ValidationResponse(err, base.Validator, req), nil)
+		rd := utils.BuildErrorResponse(http.StatusUnprocessableEntity, "error", "failed to validate request", utils.ValidationResponse(err, base.Validator, req), nil)
 		c.JSON(http.StatusUnprocessableEntity, rd)
 		base.Logger.Error(err)
 		return
@@ -104,7 +104,7 @@ func (base *Controller) UpdateEvent(c *gin.Context) {
 	// validate request
 	err := base.Validator.Struct(req)
 	if err != nil {
-		rd := utils.BuildErrorResponse(http.StatusUnprocessableEntity, "eror", "failed to validate request", utils.ValidationResponse(err, base.Validator, req), nil)
+		rd := utils.BuildErrorResponse(http.StatusUnprocessableEntity, "error", "failed to validate request", utils.ValidationResponse(err, base.Validator, req), nil)
 		c.JSON(http.StatusUnprocessableEntity, rd)
 		base.Logger.Error(err)
 		return
