@@ -20,6 +20,7 @@ func Event(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *
 		eventUrl.GET("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer, models.RoleIdentity.User, models.RoleIdentity.Admin), event.GetEvent)
 		eventUrl.GET("/", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer, models.RoleIdentity.User, models.RoleIdentity.Admin), event.GetAllEvents)
 		eventUrl.PUT("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer), event.UpdateEvent)
+		eventUrl.DELETE("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer), event.DeleteEvent)
 	}
 
 	return r

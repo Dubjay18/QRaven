@@ -123,3 +123,18 @@ func (base *Controller) UpdateEvent(c *gin.Context) {
 	}
 
 }
+
+func (base *Controller) DeleteEvent(c *gin.Context) {
+	// delete event
+	eventId := c.Params.ByName("id")
+	if code, err := eventService.DeleteEvent(eventId, base.Db); err != nil {
+		rd := utils.BuildErrorResponse(code, "error", "failed to delete event", err, nil)
+		base.Logger.Error(err)
+		c.JSON(code, rd)
+		return
+	} else {
+		rd := utils.BuildSuccessResponse(code, "event deleted successfully", nil)
+		base.Logger.Info("event deleted successfully")
+		c.JSON(code, rd)
+	}
+}

@@ -84,3 +84,10 @@ func (event *Event) UpdateEvent(db *gorm.DB) error {
 	}
 	return nil
 }
+
+func (event *Event) DeleteEvent(db *gorm.DB) error {
+	if err := db.Delete(&event).Error; err != nil {
+		return err
+	}
+	return nil
+}

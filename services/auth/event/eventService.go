@@ -135,3 +135,18 @@ func UpdateEventData(updateData models.UpdateEventRequest, eventId string, db *s
 	}, http.StatusOK, nil
 
 }
+
+func DeleteEvent(eventId string, db *storage.Database) (int, error) {
+	event := models.Event{
+		ID: eventId,
+	}
+	err := event.GetEventByID(db.Postgresql)
+	if err != nil {
+		return http.StatusNotFound, err
+	}
+	err = event.DeleteEvent(db.Postgresql)
+	if err != nil {
+		return http.StatusInternalServerError, err
+	}
+	return http.StatusNoContent, nil
+}
