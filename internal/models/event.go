@@ -53,6 +53,16 @@ type GetEventResponse struct {
 type GetEventRequest struct {
 	ID string `json:"id"`
 }
+type UpdateEventRequest struct {
+	Title       string  `json:"title,omitempty"`
+	Description string  `json:"description,omitempty"`
+	StartDate   string  `json:"start_date,omitempty"`
+	EndDate     string  `json:"end_date,omitempty"`
+	Location    string  `json:"location,omitempty"`
+	TicketPrice float64 `json:"ticket_price,omitempty"`
+	Capacity    int     `json:"capacity,omitempty"`
+	OrganizerID string  `json:"organizer_id,omitempty"`
+}
 
 func (event *Event) CreateEvent(db *gorm.DB) error {
 	if err := db.Create(&event).Error; err != nil {
@@ -63,6 +73,13 @@ func (event *Event) CreateEvent(db *gorm.DB) error {
 
 func (event *Event) GetEventByID(db *gorm.DB) error {
 	if err := db.Where("id = ?", event.ID).First(&event).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (event *Event) UpdateEvent(db *gorm.DB) error {
+	if err := db.Save(&event).Error; err != nil {
 		return err
 	}
 	return nil

@@ -14,10 +14,12 @@ import (
 func Event(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *storage.Database, logger *utils.Logger) *gin.Engine {
 	event := event.Controller{Db: db, Validator: validator, Logger: logger}
 
-	eventUrl := r.Group(fmt.Sprintf("%v/event", ApiVersion))
+	eventUrl := r.Group(fmt.Sprintf("%v/events", ApiVersion))
 	{
-		eventUrl.POST("/create", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer), event.CreateEvent)
+		eventUrl.POST("/", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer), event.CreateEvent)
 		eventUrl.GET("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer, models.RoleIdentity.User, models.RoleIdentity.Admin), event.GetEvent)
+		eventUrl.GET("/", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer, models.RoleIdentity.User, models.RoleIdentity.Admin), event.GetAllEvents)
+		eventUrl.PUT("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.Organizer), event.UpdateEvent)
 	}
 
 	return r
