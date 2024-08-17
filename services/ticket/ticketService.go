@@ -2,11 +2,15 @@ package ticketService
 
 import (
 	"errors"
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/golang-jwt/jwt"
 	"net/http"
 	"qraven/internal/models"
 	"qraven/pkg/repository/storage"
 	"qraven/pkg/repository/storage/postgresql"
 	"qraven/utils"
+	"strconv"
 	"time"
 )
 
@@ -75,4 +79,58 @@ func CreateTicket(req models.CreateTicketRequest, db *storage.Database) (models.
 
 	return responseData, http.StatusCreated, nil
 
+}
+
+func GetAllTickets(c *gin.Context, db *storage.Database) ([]models.GetTicketResponse, int, error) {
+
+	var tickets []models.Ticket
+	var responseData []models.GetTicketResponse
+	page, _ := strconv.Atoi(c.DefaultQuery("page", "1"))
+	pageSize, _ := strconv.Atoi(c.DefaultQuery("pageSize", "10"))
+
+	offset := (page - 1) * pageSize
+	claims, _ := c.Get("userClaims")
+	role := claims.(jwt.MapClaims)["role"].(float64)
+	id := claims.(jwt.MapClaims)["user_id"].(string)
+	fmt.Println(role, "role")
+	fmt.Println(id, "id")
+	if models.RoleId(role) == models.RoleIdentity.Admin {
+		if err := db.Postgresql.Offset(offset).Limit(pageSize).Find(&tickets).Error; err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+		for _, ticket := range tickets {
+			responseData = append(responseData, models.GetTicketResponse{
+				ID:           ticket.ID,
+				EventID:      ticket.EventID,
+				UserID:       ticket.UserID,
+				QRCode:       ticket.QRCode,
+				PurchaseTime: ticket.PurchaseTime,
+				Status:       ticket.Status,
+				Amount:       ticket.Amount,
+				Type:         ticket.Type,
+			})
+		}
+		return responseData, http.StatusOK, nil
+	}
+	if models.RoleId(role) == models.RoleIdentity.User || models.RoleId(role) == models.RoleIdentity.Organizer {
+		if err := db.Postgresql.Where("user_id = ?", id).Offset(offset).Limit(pageSize).Find(&tickets).Error; err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+		for _, ticket := range tickets {
+			responseData = append(responseData, models.GetTicketResponse{
+				ID:           ticket.ID,
+				EventID:      ticket.EventID,
+				UserID:       ticket.UserID,
+				QRCode:       ticket.QRCode,
+				PurchaseTime: ticket.PurchaseTime,
+				Status:       ticket.Status,
+				Amount:       ticket.Amount,
+				Type:         ticket.Type,
+			})
+
+		}
+		fmt.Println(responseData, "fjhfj")
+		return responseData, http.StatusOK, nil
+	}
+	return nil, http.StatusUnauthorized, errors.New("unauthorized")
 }

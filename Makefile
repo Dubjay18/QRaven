@@ -51,5 +51,7 @@ watch:
 	        exit 1; \
 	    fi; \
 	fi
+swagger:
+	swag init --generalInfo cmd/api/main.go --output ./docs
 
 .PHONY: all build run test clean

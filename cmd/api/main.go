@@ -14,7 +14,21 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func main(){
+// @title QRaven API
+// @version 1.0
+// @description This is a sample QRaven API.
+// @termsOfService http://swagger.io/terms/
+
+// @contact.name API Support
+// @contact.url http://www.swagger.io/support
+// @contact.email support@swagger.io
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:8019
+// @BasePath /api/v1
+func main() {
 	logger := utils.NewLogger() //Warning !!!!! Do not recreate this action anywhere on the app
 	configuration := config.Setup(logger, "./app")
 	postgresql.ConnectToDatabase(logger, configuration.Database)
@@ -22,7 +36,6 @@ func main(){
 	validatorRef := validator.New()
 
 	db := storage.Connection()
-
 
 	if configuration.Database.Migrate {
 		migrations.RunAllMigrations(db)

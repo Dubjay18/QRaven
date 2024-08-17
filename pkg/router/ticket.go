@@ -12,15 +12,23 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
+// Ticket TicketRouter sets up the routes for ticket-related operations
+// @Summary      Ticket routes
+// @Description  Provides routes for managing tickets, including creating, retrieving, updating, and deleting tickets.
+// @Tags         tickets
+// @BasePath     /
+// @Param        ApiVersion   path      string  true  "API Version"
+// @Security     ApiKeyAuth
 func Ticket(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *storage.Database, logger *utils.Logger) *gin.Engine {
 
 	ticket := ticket.Controller{Db: db, Validator: validator, Logger: logger}
 
 	ticketUrl := r.Group(fmt.Sprintf("%v/tickets", ApiVersion))
 	{
+		// @Router /tickets/{eventId} [post]
 		ticketUrl.POST("/:eventId", middleware.Authorize(db.Postgresql, models.RoleIdentity.User, models.RoleIdentity.Organizer, models.RoleIdentity.Admin), ticket.CreateTicket)
 		// ticketUrl.GET("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.User, models.RoleIdentity.Admin), ticket.GetTicket)
-		// ticketUrl.GET("/", middleware.Authorize(db.Postgresql, models.RoleIdentity.User, models.RoleIdentity.Admin), ticket.GetAllTickets)
+		ticketUrl.GET("/", middleware.Authorize(db.Postgresql, models.RoleIdentity.User, models.RoleIdentity.Admin, models.RoleIdentity.Organizer), ticket.GetTickets)
 		// ticketUrl.PUT("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.User), ticket.UpdateTicket)
 		// ticketUrl.DELETE("/:id", middleware.Authorize(db.Postgresql, models.RoleIdentity.User), ticket.DeleteTicket)
 	}

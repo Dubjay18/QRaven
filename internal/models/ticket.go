@@ -50,6 +50,22 @@ type CreateTicketResponse struct {
 	Type         string    `json:"type"`
 }
 
+type GetTicketResponse struct {
+	ID           string    `json:"id"`
+	EventID      string    `json:"event_id"`
+	UserID       string    `json:"user_id"`
+	QRCode       string    `json:"qr_code"`
+	PurchaseTime time.Time `json:"purchase_time"`
+	Status       int       `json:"status"`
+	Amount       float64   `json:"amount"`
+	Type         string    `json:"type"`
+}
+
+func (t *Ticket) IncreaseTicketCount(db *gorm.DB, amount int) error {
+	return db.Model(&Event{}).Where("id = ?", t.EventID).Update("ticket_count", gorm.Expr("ticket_count + ?", amount)).Error
+
+}
+
 func (t *Ticket) CreateTicket(db *gorm.DB) error {
 	return db.Create(t).Error
 }

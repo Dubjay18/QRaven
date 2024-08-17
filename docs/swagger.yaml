@@ -1,0 +1,102 @@
+definitions:
+  models.CreateTicketRequest:
+    properties:
+      amount:
+        type: number
+      event_id:
+        type: string
+      type:
+        type: string
+      user_id:
+        type: string
+    required:
+    - amount
+    - event_id
+    - type
+    - user_id
+    type: object
+  models.CreateTicketResponse:
+    properties:
+      amount:
+        type: number
+      event_id:
+        type: string
+      id:
+        type: string
+      purchase_time:
+        type: string
+      qr_code:
+        type: string
+      status:
+        type: integer
+      type:
+        type: string
+      user_id:
+        type: string
+    type: object
+  utils.Response:
+    properties:
+      data: {}
+      error:
+        description: for errors that occur even if request is successful
+      extra: {}
+      message:
+        type: string
+      name:
+        description: name of the error
+        type: string
+      pagination: {}
+      status:
+        type: string
+      status_code:
+        type: integer
+    type: object
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample QRaven API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: QRaven API
+  version: "1.0"
+paths:
+  /ticket/{eventId}:
+    post:
+      consumes:
+      - application/json
+      description: Creates a new ticket for the event with the given eventId.
+      parameters:
+      - description: Event ID
+        in: path
+        name: eventId
+        required: true
+        type: string
+      - description: Create Ticket Request
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/models.CreateTicketRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: ticketResponse
+          schema:
+            $ref: '#/definitions/models.CreateTicketResponse'
+        "400":
+          description: badRequest
+          schema:
+            $ref: '#/definitions/utils.Response'
+        "422":
+          description: validationError
+          schema:
+            $ref: '#/definitions/utils.Response'
+      summary: Creates a new ticket for an event
+      tags:
+      - tickets
+swagger: "2.0"

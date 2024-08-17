@@ -18,6 +18,18 @@ type Controller struct {
 	Logger    *utils.Logger
 }
 
+// CreateTicket creates a new ticket
+// @Summary      Creates a new ticket for an event
+// @Description  Creates a new ticket for the event with the given eventId.
+// @Tags         tickets
+// @Accept       json
+// @Produce      json
+// @Param        eventId   path      string                     true  "Event ID"
+// @Param        request   body      models.CreateTicketRequest true  "Create Ticket Request"
+// @Success      200       {object}  models.CreateTicketResponse  "ticketResponse"
+// @Failure      400       {object}  utils.Response              "badRequest"
+// @Failure      422       {object}  utils.Response              "validationError"
+// @Router       /ticket/{eventId} [post]
 func (base *Controller) CreateTicket(c *gin.Context) {
 	// create ticket
 	var req models.CreateTicketRequest
@@ -56,4 +68,16 @@ func (base *Controller) CreateTicket(c *gin.Context) {
 		base.Logger.Info("ticket created successfully")
 		c.JSON(code, rd)
 	}
+}
+
+func (base *Controller) GetTickets(c *gin.Context) {
+	if res, code, err := ticketService.GetAllTickets(c, base.Db); err != nil {
+		rd := utils.BuildErrorResponse(code, "error", "failed to get tickets", err, nil)
+		c.JSON(code, rd)
+		return
+	} else {
+		rd := utils.BuildSuccessResponse(code, "tickets retrieved successfully", res)
+		c.JSON(code, rd)
+	}
+
 }
