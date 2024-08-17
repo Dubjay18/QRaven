@@ -13,6 +13,7 @@ type Event struct {
 	Capacity    int     `json:"capacity" gorm:"not null"`
 	OrganizerID string  `json:"organizer_id" gorm:"not null"`
 	Organizer   User    `json:"organizer" gorm:"foreignKey:OrganizerID"`
+	TicketCount int64   `json:"ticket_count" gorm:"default:0"`
 	gorm.Model
 }
 
@@ -49,6 +50,7 @@ type GetEventResponse struct {
 	TicketPrice float64 `json:"ticket_price"`
 	Capacity    int     `json:"capacity"`
 	OrganizerID string  `json:"organizer_id"`
+	TicketCount int64   `json:"ticket_count"`
 }
 type GetEventRequest struct {
 	ID string `json:"id"`
@@ -87,6 +89,13 @@ func (event *Event) UpdateEvent(db *gorm.DB) error {
 
 func (event *Event) DeleteEvent(db *gorm.DB) error {
 	if err := db.Delete(&event).Error; err != nil {
+		return err
+	}
+	return nil
+}
+
+func (event *Event) IncreaseTicketCount(db *gorm.DB, amount int) error {
+	if err := db.Model(&event).Update("ticket_count", gorm.Expr("ticket_count + ?", amount)).Error; err != nil {
 		return err
 	}
 	return nil

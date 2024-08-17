@@ -1,13 +1,15 @@
 package event
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"net/http"
 	"qraven/internal/models"
 	"qraven/pkg/middleware"
 	"qraven/pkg/repository/storage"
-	eventService "qraven/services/auth/event"
+	eventService "qraven/services/event"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+
 	"qraven/utils"
 )
 
@@ -72,7 +74,7 @@ func (base *Controller) GetEvent(c *gin.Context) {
 }
 
 func (base *Controller) GetAllEvents(c *gin.Context) {
-	if res, code, err := eventService.GetEvents(base.Db); err != nil {
+	if res, code, err := eventService.GetEvents(c, base.Db); err != nil {
 		rd := utils.BuildErrorResponse(code, "error", "failed to get events", err, nil)
 		base.Logger.Error(err)
 		c.JSON(code, rd)

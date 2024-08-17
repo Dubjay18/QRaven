@@ -34,6 +34,7 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 	api := r.Group(ApiVersion)
 	Auth(r, ApiVersion, validator, db, logger)
 	Event(r, ApiVersion, validator, db, logger)
+	Ticket(r, ApiVersion, validator, db, logger)
 
 	api.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
