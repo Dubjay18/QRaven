@@ -2,6 +2,8 @@ package main
 
 import (
 	"fmt"
+	"github.com/go-playground/validator/v10"
+
 	"log"
 	"qraven/internal/config"
 	"qraven/internal/models/migrations"
@@ -10,8 +12,6 @@ import (
 	"qraven/pkg/repository/storage/redis"
 	"qraven/pkg/router"
 	"qraven/utils"
-
-	"github.com/go-playground/validator/v10"
 )
 
 // @title QRaven API

@@ -12,13 +12,6 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-// Ticket TicketRouter sets up the routes for ticket-related operations
-// @Summary      Ticket routes
-// @Description  Provides routes for managing tickets, including creating, retrieving, updating, and deleting tickets.
-// @Tags         tickets
-// @BasePath     /
-// @Param        ApiVersion   path      string  true  "API Version"
-// @Security     ApiKeyAuth
 func Ticket(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *storage.Database, logger *utils.Logger) *gin.Engine {
 
 	ticket := ticket.Controller{Db: db, Validator: validator, Logger: logger}
