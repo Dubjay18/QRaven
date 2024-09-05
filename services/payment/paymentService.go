@@ -68,7 +68,7 @@ func initializePayment(req models.InitializePaymentRequest, db *storage.Database
 		PaymentMethod: req.PaymentMethod,
 		Amount:        req.Amount,
 		PaymentStatus: 1,
-		PaymentTime:   "",
+		PaymentTime:   time.Now().Format(time.RFC3339),
 	}, http.StatusOK, nil
 
 }

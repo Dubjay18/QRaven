@@ -18,18 +18,6 @@ type Controller struct {
 	Logger    *utils.Logger
 }
 
-// CreateTicket creates a new ticket
-// @Summary      Creates a new ticket for an event
-// @Description  Creates a new ticket for the event with the given eventId.
-// @Tags         tickets
-// @Accept       json
-// @Produce      json
-// @Param        eventId   path      string                     true  "Event ID"
-// @Param        request   body      models.CreateTicketRequest true  "Create Ticket Request"
-// @Success      200       {object}  models.CreateTicketResponse  "ticketResponse"
-// @Failure      400       {object}  utils.Response              "badRequest"
-// @Failure      422       {object}  utils.Response              "validationError"
-// @Router       /ticket/{eventId} [post]
 func (base *Controller) CreateTicket(c *gin.Context) {
 	// create ticket
 	var req models.CreateTicketRequest
