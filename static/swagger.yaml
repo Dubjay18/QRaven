@@ -1,0 +1,146 @@
+basePath: /api/v1
+host: localhost:8019
+info:
+  contact:
+    email: support@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: This is a sample QRaven API.
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: QRaven API
+  version: "1.0"
+  tags:
+    - name: auth
+      description: API for user registration and authentication
+paths:
+  /health:
+    get:
+      description: Check the health of the API
+      operationId: health
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Health"
+      tags:
+        - health
+  /auth/register:
+    post:
+      description: Register a new user
+      operationId: register
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User object that needs to be added to the system
+          required: true
+          schema:
+            $ref: "#/definitions/UserRegistration"
+      responses:
+        "201":
+          description: OK
+          schema:
+            $ref: "#/definitions/UserRegistration"
+      tags:
+        - auth
+  /register/organizer:
+    post:
+      description: Register a new organizer
+      operationId: registerOrganizer
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Organizer object that needs to be added to the system
+          required: true
+          schema:
+            $ref: "#/definitions/OrganizerRegistration"
+      responses:
+        "201":
+          description: OK
+          schema:
+            $ref: "#/definitions/OrganizerRegistration"
+      tags:
+        - auth
+  /auth/login:
+    post:
+      description: Login to the application
+      operationId: login
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: User object that needs to be added to the system
+          required: true
+          schema:
+            $ref: "#/definitions/UserLogin"
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/UserLogin"
+      tags:
+        - auth
+  /auth/logout:
+    post:
+      description: Logout from the application
+      operationId: logout
+      produces:
+        - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: "#/definitions/Logout"
+      tags:
+        - logout
+
+definitions:
+  Health:
+    type: object
+    properties:
+      status:
+        type: string
+  UserRegistration:
+    type: object
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  UserLogin:
+    type: object
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+  OrganizerRegistration:
+    type: object
+    properties:
+      first_name:
+        type: string
+      last_name:
+        type: string
+      email:
+        type: string
+      password:
+        type: string
+  Logout:
+    type: object
+    properties:
+      status:
+        type: string
+swagger: "2.0"

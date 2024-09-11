@@ -53,7 +53,9 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 	Auth(r, ApiVersion, validator, db, logger)
 	Event(r, ApiVersion, validator, db, logger)
 	Ticket(r, ApiVersion, validator, db, logger)
-	url := ginSwagger.URL("http://localhost:8019/swagger/doc.json")
+
+	r.StaticFile("/swagger.yaml", "static/swagger.yaml")
+	url := ginSwagger.URL("/swagger.yaml")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	api.GET("/", func(c *gin.Context) {
 		c.JSON(http.StatusOK, gin.H{
