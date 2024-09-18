@@ -23,10 +23,9 @@ func CreateTicket(req models.CreateTicketRequest, db *storage.Database) (models.
 	ticket := models.Ticket{}
 	var responseData models.CreateTicketResponse
 	ticket = models.Ticket{
-		ID:           utils.GenerateUUID(),
+		ID:           utils.GenerateTicketId(),
 		EventID:      req.EventID,
 		UserID:       req.UserID,
-		QRCode:       utils.GenerateUUID(),
 		PurchaseTime: time.Now(),
 		Status:       models.TicketStatusPending,
 		Amount:       req.Amount,
@@ -70,7 +69,6 @@ func CreateTicket(req models.CreateTicketRequest, db *storage.Database) (models.
 		ID:           ticket.ID,
 		EventID:      ticket.EventID,
 		UserID:       ticket.UserID,
-		QRCode:       ticket.QRCode,
 		PurchaseTime: ticket.PurchaseTime,
 		Status:       ticket.Status,
 		Amount:       ticket.Amount,
@@ -103,7 +101,6 @@ func GetAllTickets(c *gin.Context, db *storage.Database) ([]models.GetTicketResp
 				ID:           ticket.ID,
 				EventID:      ticket.EventID,
 				UserID:       ticket.UserID,
-				QRCode:       ticket.QRCode,
 				PurchaseTime: ticket.PurchaseTime,
 				Status:       ticket.Status,
 				Amount:       ticket.Amount,
@@ -121,7 +118,6 @@ func GetAllTickets(c *gin.Context, db *storage.Database) ([]models.GetTicketResp
 				ID:           ticket.ID,
 				EventID:      ticket.EventID,
 				UserID:       ticket.UserID,
-				QRCode:       ticket.QRCode,
 				PurchaseTime: ticket.PurchaseTime,
 				Status:       ticket.Status,
 				Amount:       ticket.Amount,
@@ -129,7 +125,6 @@ func GetAllTickets(c *gin.Context, db *storage.Database) ([]models.GetTicketResp
 			})
 
 		}
-		fmt.Println(responseData, "fjhfj")
 		return responseData, http.StatusOK, nil
 	}
 	return nil, http.StatusUnauthorized, errors.New("unauthorized")
