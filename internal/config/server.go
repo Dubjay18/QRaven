@@ -16,3 +16,9 @@ type App struct {
 	MagicLinkDuration     int
 	ResetPasswordDuration int
 }
+
+type Cloudinary struct {
+	CloudName string
+	ApiKey    string
+	ApiSecret string
+}

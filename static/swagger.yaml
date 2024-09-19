@@ -120,20 +120,15 @@ definitions:
         type: string
       password:
         type: string
+      gender:
+        type: string
+      date_of_birth:
+        type: string
+      avatar:
+        type: file
   UserLogin:
     type: object
     properties:
-      email:
-        type: string
-      password:
-        type: string
-  OrganizerRegistration:
-    type: object
-    properties:
-      first_name:
-        type: string
-      last_name:
-        type: string
       email:
         type: string
       password:

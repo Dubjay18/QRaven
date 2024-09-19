@@ -52,21 +52,21 @@ type User struct {
 }
 
 type CreateUserRequest struct {
-	FirstName   string `json:"first_name" binding:"required"`
-	LastName    string `json:"last_name" binding:"required"`
-	Email       string `json:"email" binding:"required,email"`
-	Password    string `json:"password" binding:"required,min=6"`
-	Gender      Gender `json:"gender" binding:"required" gorm:"not null"`
-	DateOfBirth string `json:"date_of_birth" binding:"required" gorm:"not null"`
+	FirstName   string `form:"first_name" binding:"required"`
+	LastName    string `form:"last_name" binding:"required"`
+	Email       string `form:"email" binding:"required,email"`
+	Password    string `form:"password" binding:"required,min=6"`
+	Gender      Gender `form:"gender" binding:"required" gorm:"not null"`
+	DateOfBirth string `form:"date_of_birth" binding:"required" gorm:"not null"`
+	Role        RoleId `form:"role"`
 	Avatar      string `json:"avatar"`
-	Role        RoleId `json:"role"`
 }
 
 type CreateUserResponse struct {
 	ID          string `json:"id" gorm:"primaryKey"`
 	FirstName   string `json:"first_name" binding:"required"`
 	LastName    string `json:"last_name" binding:"required"`
-	Email       string `json:"email" binding:"required,email"`
+	Email       string `json:"email" binding:"requirxed,email"`
 	Role        string `json:"role"`
 	Gender      Gender `json:"gender" gorm:"not null"`
 	Avatar      string `json:"avatar"`

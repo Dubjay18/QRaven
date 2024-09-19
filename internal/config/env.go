@@ -10,9 +10,10 @@ type Configuration struct {
 	Database     Database
 	TestDatabase Database
 	App          App
+	Cloudinary   Cloudinary
 	// IPStack      IPStack
 	// Mail         MAIL
-	Redis        Redis
+	Redis Redis
 }
 
 type BaseConfig struct {
@@ -29,15 +30,18 @@ type BaseConfig struct {
 	MAGIC_LINK_DURATION     int    `mapstructure:"MAGIC_LINK_DURATION"`
 	RESET_PASSWORD_DURATION int    `mapstructure:"RESET_PASSWORD_DURATION"`
 
-	DB_HOST       string `mapstructure:"DB_HOST"`
-	DB_PORT       string `mapstructure:"DB_PORT"`
-	DB_CONNECTION string `mapstructure:"DB_CONNECTION"`
-	TIMEZONE      string `mapstructure:"TIMEZONE"`
-	SSLMODE       string `mapstructure:"SSLMODE"`
-	USERNAME      string `mapstructure:"USERNAME"`
-	PASSWORD      string `mapstructure:"PASSWORD"`
-	DB_NAME       string `mapstructure:"DB_NAME"`
-	MIGRATE       bool   `mapstructure:"MIGRATE"`
+	DB_HOST               string `mapstructure:"DB_HOST"`
+	DB_PORT               string `mapstructure:"DB_PORT"`
+	DB_CONNECTION         string `mapstructure:"DB_CONNECTION"`
+	TIMEZONE              string `mapstructure:"TIMEZONE"`
+	SSLMODE               string `mapstructure:"SSLMODE"`
+	USERNAME              string `mapstructure:"USERNAME"`
+	PASSWORD              string `mapstructure:"PASSWORD"`
+	DB_NAME               string `mapstructure:"DB_NAME"`
+	MIGRATE               bool   `mapstructure:"MIGRATE"`
+	CLOUDINARY_CLOUD_NAME string `mapstructure:"CLOUDINARY_CLOUD_NAME"`
+	CLOUDINARY_API_KEY    string `mapstructure:"CLOUDINARY_API_KEY"`
+	CLOUDINARY_API_SECRET string `mapstructure:"CLOUDINARY_API_SECRET"`
 
 	TEST_DB_HOST       string `mapstructure:"TEST_DB_HOST"`
 	TEST_DB_PORT       string `mapstructure:"TEST_DB_PORT"`
@@ -109,7 +113,11 @@ func (config *BaseConfig) SetupConfigurationn() *Configuration {
 			DB_NAME:       config.TEST_DB_NAME,
 			Migrate:       config.TEST_MIGRATE,
 		},
-
+		Cloudinary: Cloudinary{
+			CloudName: config.CLOUDINARY_CLOUD_NAME,
+			ApiKey:    config.CLOUDINARY_API_KEY,
+			ApiSecret: config.CLOUDINARY_API_SECRET,
+		},
 		// IPStack: IPStack{
 		// 	Key:     config.IPSTACK_KEY,
 		// 	BaseUrl: config.IPSTACK_BASE_URL,

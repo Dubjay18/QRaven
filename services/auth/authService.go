@@ -3,6 +3,7 @@ package authService
 import (
 	"errors"
 	"fmt"
+	"log"
 	"net/http"
 	"qraven/internal/models"
 	"qraven/pkg/middleware"
@@ -26,11 +27,10 @@ func ValidateRequest(req models.CreateUserRequest, db *gorm.DB) error {
 	if req.DateOfBirth == "" {
 		return errors.New("date of birth is required")
 	}
-	// Add additional validation logic for the date of birth if needed
 	return nil
 }
 
-func CreateUser(req models.CreateUserRequest, role models.RoleId, db *gorm.DB) (gin.H, int, error) {
+func CreateUser(c *gin.Context, req models.CreateUserRequest, role models.RoleId, db *gorm.DB) (gin.H, int, error) {
 	user := models.User{}
 	var responseData gin.H
 	hashedPassword, err := utils.HashPassword(req.Password)
@@ -41,7 +41,16 @@ func CreateUser(req models.CreateUserRequest, role models.RoleId, db *gorm.DB) (
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
-	if req.Avatar == "" {
+	// Handle file upload for the avatar
+	avatarFile, _ := c.FormFile("avatar")
+	if avatarFile != nil {
+		avatarPath, err := utils.UploadFile(avatarFile)
+		if err != nil {
+			return nil, http.StatusInternalServerError, err
+		}
+		log.Println(avatarPath)
+		req.Avatar = avatarPath
+	} else {
 		req.Avatar = "https://www.gravatar.com/avatar/" + utils.GenerateUUID()
 	}
 
