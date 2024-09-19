@@ -2,6 +2,7 @@ package models
 
 import (
 	"qraven/pkg/repository/storage/postgresql"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -9,18 +10,16 @@ import (
 type RoleName string
 type RoleId int
 
-
-
 type DefaultIdentity struct {
-	User       RoleId
-	Admin 	RoleId
+	User      RoleId
+	Admin     RoleId
 	Organizer RoleId
 }
 
 var RoleIdentity = DefaultIdentity{
-	User:       1,
+	User:      1,
 	Organizer: 2,
-	Admin:      3,	
+	Admin:     3,
 }
 
 var (
@@ -29,33 +28,40 @@ var (
 	OrganizerRole RoleName = "organizer"
 )
 
-
-
 type User struct {
-	ID       string    `json:"id" gorm:"primaryKey"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-	Role    RoleId `json:"role"`
+	ID          string `json:"id" gorm:"primaryKey"`
+	FirstName   string `json:"first_name"`
+	LastName    string `json:"last_name"`
+	Email       string `json:"email"`
+	Password    string `json:"password"`
+	Gender      string `json:"gender" gorm:"not null"`
+	DateOfBirth string `json:"date_of_birth" gorm:"not null"`
+	Avatar      string `json:"avatar"`
+	Role        RoleId `json:"role"`
+
 	gorm.Model
 }
 
-
 type CreateUserRequest struct {
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Password string `json:"password" binding:"required,min=6"`
-
+	FirstName   string    `json:"first_name" binding:"required"`
+	LastName    string    `json:"last_name" binding:"required"`
+	Email       string    `json:"email" binding:"required,email"`
+	Password    string    `json:"password" binding:"required,min=6"`
+	Gender      string    `json:"gender" binding:"required" gorm:"not null"`
+	DateOfBirth time.Time `json:"date_of_birth" binding:"required" gorm:"not null"`
+	Avatar      string    `json:"avatar"`
+	Role        RoleId    `json:"role"`
 }
 
 type CreateUserResponse struct {
-	ID       string    `json:"id" gorm:"primaryKey"`
-	FirstName string `json:"first_name" binding:"required"`
-	LastName  string `json:"last_name" binding:"required"`
-	Email    string `json:"email" binding:"required,email"`
-	Role    string `json:"role"`
+	ID          string `json:"id" gorm:"primaryKey"`
+	FirstName   string `json:"first_name" binding:"required"`
+	LastName    string `json:"last_name" binding:"required"`
+	Email       string `json:"email" binding:"required,email"`
+	Role        string `json:"role"`
+	Gender      string `json:"gender" gorm:"not null"`
+	Avatar      string `json:"avatar"`
+	DateOfBirth string `json:"date_of_birth" gorm:"not null"`
 }
 
 type UserLoginRequest struct {
@@ -75,7 +81,6 @@ func (c *User) GetRoleName() RoleName {
 		return UserRole
 	}
 }
-
 
 func (u User) GetUserByEmail(db *gorm.DB, email string) (*User, error) {
 	var user User

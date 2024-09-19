@@ -23,7 +23,7 @@ type Ticket struct {
 	EventID      string    `json:"event_id"`                                  // event_id INT REFERENCES events(id)
 	Event        Event     `json:"event" gorm:"foreignKey:EventID"`           // Foreign key relationship with Event
 	UserID       string    `json:"user_id"`                                   // user_id INT REFERENCES users(id)
-	User         User      `json:"user" gorm:"foreignKey:UserID"`             // Foreign key relationship with User                   // qr_code TEXT UNIQUE
+	User         User      `json:"user" gorm:"foreignKey:UserID"`             // Foreign key relationship with User
 	PurchaseTime time.Time `json:"purchase_time" gorm:"autoCreateTime"`       // purchase_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 	Status       int       `json:"status" gorm:"not null"`                    // status in ['pending', 'approved', 'cancelled']
 	Amount       float64   `json:"amount" gorm:"type:decimal(10,2);not null"` // amount DECIMAL(10, 2) NOT NULL
