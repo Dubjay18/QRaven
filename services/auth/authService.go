@@ -19,6 +19,14 @@ func ValidateRequest(req models.CreateUserRequest, db *gorm.DB) error {
 	if ok := postgresql.CheckExistsInTable(db, "users", "email = ?", req.Email); ok {
 		return errors.New("user with this email already exists")
 	}
+	if req.Gender != "" && req.Gender != "male" && req.Gender != "female" {
+		return errors.New("invalid gender")
+	}
+
+	if req.DateOfBirth == "" {
+		return errors.New("date of birth is required")
+	}
+	// Add additional validation logic for the date of birth if needed
 	return nil
 }
 
@@ -29,13 +37,24 @@ func CreateUser(req models.CreateUserRequest, role models.RoleId, db *gorm.DB) (
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
+	parsedDateOfBirth, err := req.ParseDateOfBirth()
+	if err != nil {
+		return nil, http.StatusBadRequest, err
+	}
+	if req.Avatar == "" {
+		req.Avatar = "https://www.gravatar.com/avatar/" + utils.GenerateUUID()
+	}
+
 	user = models.User{
-		ID:        utils.GenerateUUID(),
-		FirstName: strings.ToLower(req.FirstName),
-		LastName:  strings.ToLower(req.LastName),
-		Email:     strings.ToLower(req.Email),
-		Password:  hashedPassword,
-		Role:      role,
+		ID:          utils.GenerateUUID(),
+		FirstName:   strings.ToLower(req.FirstName),
+		LastName:    strings.ToLower(req.LastName),
+		Email:       strings.ToLower(req.Email),
+		Password:    hashedPassword,
+		Role:        role,
+		Gender:      req.Gender,
+		DateOfBirth: parsedDateOfBirth,
+		Avatar:      req.Avatar,
 	}
 	err = user.CreateUser(db)
 	if err != nil {
@@ -62,11 +81,14 @@ func CreateUser(req models.CreateUserRequest, role models.RoleId, db *gorm.DB) (
 	}
 	reponseData := gin.H{
 		"user": models.CreateUserResponse{
-			ID:        user.ID,
-			FirstName: user.FirstName,
-			LastName:  user.LastName,
-			Email:     user.Email,
-			Role:      string(user.GetRoleName()),
+			ID:          user.ID,
+			FirstName:   user.FirstName,
+			LastName:    user.LastName,
+			Email:       user.Email,
+			Role:        string(user.GetRoleName()),
+			Gender:      user.Gender,
+			Avatar:      user.Avatar,
+			DateOfBirth: user.DateOfBirth.Format("2006-01-02"),
 		},
 		"access_token": tokenData.AccessToken,
 	}
