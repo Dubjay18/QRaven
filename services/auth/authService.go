@@ -30,20 +30,29 @@ func ValidateRequest(req models.CreateUserRequest, db *gorm.DB) error {
 	return nil
 }
 
-func CreateUser(c *gin.Context, req models.CreateUserRequest, role models.RoleId, db *gorm.DB) (gin.H, int, error) {
+func CreateUser(c *gin.Context, req models.CreateUserRequest, db *gorm.DB) (gin.H, int, error) {
+	// Create a new user
 	user := models.User{}
 	var responseData gin.H
+	if req.Role == "" || req.Role != string(models.UserRole) && req.Role != string(models.OrganizerRole) {
+		return responseData, http.StatusBadRequest, errors.New("invalid role")
+	}
+	// Hash the password
 	hashedPassword, err := utils.HashPassword(req.Password)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
+
+	// Parse the date of birth
 	parsedDateOfBirth, err := req.ParseDateOfBirth()
 	if err != nil {
 		return nil, http.StatusBadRequest, err
 	}
+
 	// Handle file upload for the avatar
 	avatarFile, _ := c.FormFile("avatar")
 	if avatarFile != nil {
+		// Upload the avatar file
 		avatarPath, err := utils.UploadFile(avatarFile)
 		if err != nil {
 			return nil, http.StatusInternalServerError, err
@@ -51,43 +60,47 @@ func CreateUser(c *gin.Context, req models.CreateUserRequest, role models.RoleId
 		log.Println(avatarPath)
 		req.Avatar = avatarPath
 	} else {
+		// Generate a default avatar URL
 		req.Avatar = "https://www.gravatar.com/avatar/" + utils.GenerateUUID()
 	}
 
+	// Set the user data
 	user = models.User{
 		ID:          utils.GenerateUUID(),
 		FirstName:   strings.ToLower(req.FirstName),
 		LastName:    strings.ToLower(req.LastName),
 		Email:       strings.ToLower(req.Email),
 		Password:    hashedPassword,
-		Role:        role,
+		Role:        models.RoleName(req.Role),
 		Gender:      req.Gender,
 		DateOfBirth: parsedDateOfBirth,
 		Avatar:      req.Avatar,
 	}
+
+	// Create the user in the database
 	err = user.CreateUser(db)
 	if err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
 
+	// Create an access token for the user
 	tokenData, err := middleware.CreateToken(user)
 	if err != nil {
-
 		return responseData, http.StatusInternalServerError, fmt.Errorf("error saving token: " + err.Error())
 	}
 
+	// Store the access token in the database
 	tokens := map[string]string{
 		"access_token": tokenData.AccessToken,
 		"exp":          strconv.Itoa(int(tokenData.ExpiresAt.Unix())),
 	}
-
 	access_token := models.AccessToken{ID: tokenData.AccessUuid, OwnerID: user.ID}
-
 	err = access_token.CreateAccessToken(db, tokens)
-
 	if err != nil {
 		return responseData, http.StatusInternalServerError, fmt.Errorf("error saving token: " + err.Error())
 	}
+
+	// Prepare the response data
 	reponseData := gin.H{
 		"user": models.CreateUserResponse{
 			ID:          user.ID,

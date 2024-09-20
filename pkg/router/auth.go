@@ -13,17 +13,11 @@ import (
 func Auth(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *storage.Database, logger *utils.Logger) *gin.Engine {
 	auth := auth.Controller{Db: db, Validator: validator, Logger: logger}
 
-
 	authUrl := r.Group(fmt.Sprintf("%v/auth", ApiVersion))
 	{
 		authUrl.POST("/register", auth.CreateRegularUser)
-		authUrl.POST("/register/admin", auth.CreateAdminUser)
-		authUrl.POST("register/organizer", auth.CreateOrganizerUser)
 		authUrl.POST("/login", auth.Login)
 	}
 
-
-
 	return r
 }
-	

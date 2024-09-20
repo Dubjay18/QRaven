@@ -46,7 +46,7 @@ type User struct {
 	Gender      Gender    `json:"gender" gorm:"not null"`
 	DateOfBirth time.Time `json:"date_of_birth" gorm:"not null"`
 	Avatar      string    `json:"avatar"`
-	Role        RoleId    `json:"role"`
+	Role        RoleName  `json:"role"`
 
 	gorm.Model
 }
@@ -58,7 +58,7 @@ type CreateUserRequest struct {
 	Password    string `form:"password" binding:"required,min=6"`
 	Gender      Gender `form:"gender" binding:"required" gorm:"not null"`
 	DateOfBirth string `form:"date_of_birth" binding:"required" gorm:"not null"`
-	Role        RoleId `form:"role"`
+	Role        string `form:"role"`
 	Avatar      string `json:"avatar"`
 }
 
@@ -89,16 +89,7 @@ func (c *CreateUserRequest) ParseDateOfBirth() (time.Time, error) {
 }
 
 func (c *User) GetRoleName() RoleName {
-	switch c.Role {
-	case RoleIdentity.Admin:
-		return AdminRole
-	case RoleIdentity.User:
-		return UserRole
-	case RoleIdentity.Organizer:
-		return OrganizerRole
-	default:
-		return UserRole
-	}
+	return c.Role
 }
 
 func (u User) GetUserByEmail(db *gorm.DB, email string) (*User, error) {
