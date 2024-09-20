@@ -13,11 +13,24 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func CreateEvent(req models.CreateEventRequest, db *storage.Database) (models.CreateEventResponse, int, error) {
+func CreateEvent(c *gin.Context, req models.CreateEventRequest, db *storage.Database) (models.CreateEventResponse, int, error) {
 	//check if event exists
 	if ok := postgresql.CheckExistsInTable(db.Postgresql, "events", "title = ? AND location = ? AND organizer_id = ?", req.Title, req.Location, req.OrganizerID); ok {
 		return models.CreateEventResponse{}, http.StatusConflict, errors.New("event with this title, location, and organizer already exists")
 	}
+
+	imageFile, _ := c.FormFile("image")
+	if imageFile != nil {
+		// Upload the image file
+		imagePath, err := utils.UploadFile(imageFile)
+		if err != nil {
+			return models.CreateEventResponse{}, http.StatusInternalServerError, err
+		}
+		req.Image = imagePath
+	} else {
+		req.Image = "../../static/logo.webp"
+	}
+
 	// create event
 	event := models.Event{}
 	var responseData models.CreateEventResponse

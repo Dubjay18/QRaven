@@ -46,7 +46,7 @@ func (base *Controller) CreateEvent(c *gin.Context) {
 		return
 	}
 
-	if res, code, err := eventService.CreateEvent(req, base.Db); err != nil {
+	if res, code, err := eventService.CreateEvent(c, req, base.Db); err != nil {
 		rd := utils.BuildErrorResponse(code, "error", "failed to create event", err, nil)
 		base.Logger.Error(err)
 		c.JSON(code, rd)
