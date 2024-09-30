@@ -113,7 +113,7 @@ func (base *Controller) UpdateEvent(c *gin.Context) {
 	}
 
 	eventId := c.Params.ByName("id")
-	if res, code, err := eventService.UpdateEventData(req, eventId, base.Db); err != nil {
+	if res, code, err := eventService.UpdateEventData(c, req, eventId, base.Db); err != nil {
 		rd := utils.BuildErrorResponse(code, "error", "failed to update event", err, nil)
 		base.Logger.Error(err)
 		c.JSON(code, rd)

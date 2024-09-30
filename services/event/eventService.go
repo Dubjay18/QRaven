@@ -2,7 +2,6 @@ package eventService
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 	"qraven/internal/models"
 	"qraven/pkg/repository/storage"
@@ -101,8 +100,6 @@ func GetEvents(c *gin.Context, db *storage.Database) ([]models.GetEventResponse,
 	if err := db.Postgresql.Offset(offset).Limit(pageSize).Find(&events).Error; err != nil {
 		return nil, http.StatusInternalServerError, err
 	}
-
-	fmt.Println(events, "fjhfj")
 	for _, event := range events {
 		responseData = append(responseData, models.GetEventResponse{
 			ID:          event.ID,
@@ -122,8 +119,9 @@ func GetEvents(c *gin.Context, db *storage.Database) ([]models.GetEventResponse,
 
 }
 
-func UpdateEventData(updateData models.UpdateEventRequest, eventId string, db *storage.Database) (models.GetEventResponse, int, error) {
+func UpdateEventData(c *gin.Context, updateData models.UpdateEventRequest, eventId string, db *storage.Database) (models.GetEventResponse, int, error) {
 	var responseData models.GetEventResponse
+	imageFile, _ := c.FormFile("image")
 	event := models.Event{
 		ID: eventId,
 	}
@@ -154,6 +152,15 @@ func UpdateEventData(updateData models.UpdateEventRequest, eventId string, db *s
 	}
 	if updateData.OrganizerID != "" {
 		event.OrganizerID = updateData.OrganizerID
+	}
+
+	if imageFile != nil {
+		// Upload the image file
+		imagePath, err := utils.UploadFile(imageFile)
+		if err != nil {
+			return models.GetEventResponse{}, http.StatusInternalServerError, err
+		}
+		event.Image = imagePath
 	}
 	err = event.UpdateEvent(db.Postgresql)
 	if err != nil {
