@@ -19,7 +19,7 @@ type Controller struct {
 	Logger    *utils.Logger
 }
 
-func (base *Controller) CreateRegularUser(c *gin.Context) {
+func (base *Controller) CreateUser(c *gin.Context) {
 	// create user
 	var req models.CreateUserRequest
 	if err := c.ShouldBind(&req); err != nil {

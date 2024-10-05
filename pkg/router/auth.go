@@ -15,7 +15,7 @@ func Auth(r *gin.Engine, ApiVersion string, validator *validator.Validate, db *s
 
 	authUrl := r.Group(fmt.Sprintf("%v/auth", ApiVersion))
 	{
-		authUrl.POST("/register", auth.CreateRegularUser)
+		authUrl.POST("/register", auth.CreateUser)
 		authUrl.POST("/login", auth.Login)
 	}
 
