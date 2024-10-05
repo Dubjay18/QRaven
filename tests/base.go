@@ -19,11 +19,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var (
+	SignupPath = "/api/v1/auth/register"
+	signupURI  = url.URL{Path: SignupPath}
+)
+
 func Setup() *utils.Logger {
 	logger := utils.NewLogger()
 	config := config.Setup(logger, "../../app")
 
-	postgresql.ConnectToDatabase(logger, config.TestDatabase)
+	postgresql.ConnectToDatabase(logger, config.Database)
 	redis.ConnectToRedis(logger, config.Redis)
 	db := storage.Connection()
 	if config.TestDatabase.Migrate {
@@ -73,12 +78,8 @@ func AssertValidationError(t *testing.T, response map[string]interface{}, field 
 
 // helper to signup a user
 func SignupUser(t *testing.T, r *gin.Engine, auth auth.Controller, userSignUpData models.CreateUserRequest) {
-	var (
-		signupPath = "/api/v1/auth/register"
-		signupURI  = url.URL{Path: signupPath}
-	)
 
-	r.POST(signupPath, auth.CreateUser)
+	r.POST(SignupPath, auth.CreateUser)
 
 	var b bytes.Buffer
 	json.NewEncoder(&b).Encode(userSignUpData)

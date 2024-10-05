@@ -3,12 +3,12 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/davecgh/go-spew/spew"
+	log "github.com/jeanphorn/log4go"
 	"net/http"
 	"os"
 	"runtime"
 	"time"
-	"github.com/davecgh/go-spew/spew"
-	log "github.com/jeanphorn/log4go"
 )
 
 var (
@@ -74,7 +74,7 @@ func NewLogger() *Logger {
 
 // Info log information
 func (l *Logger) Info(arg0 interface{}, args ...interface{}) {
-	l.logger.Log(log.INFO, getSource(), fmt.Sprintf(arg0.(string), args...))
+	// l.logger.Log(log.INFO, getSource(), fmt.Sprintf(arg0.(string), args...))
 }
 
 // Debug log debug
