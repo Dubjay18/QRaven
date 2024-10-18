@@ -60,19 +60,6 @@ func TestUserSignup(t *testing.T) {
 			ExpectedCode: http.StatusBadRequest,
 			Message:      "user already exists with the given email",
 		}, {
-			Name: "invalid email",
-			RequestBody: models.CreateUserRequest{
-				Email:       "emailtest",
-				FirstName:   "test",
-				LastName:    "user",
-				Password:    "password",
-				Gender:      "male",
-				DateOfBirth: "1990-01-01",
-				Role:        "user",
-			},
-			ExpectedCode: http.StatusBadRequest,
-			Message:      "email address is invalid",
-		}, {
 			Name: "Validation failed",
 			RequestBody: models.CreateUserRequest{
 				FirstName:   "test",

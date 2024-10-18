@@ -18,12 +18,14 @@ import (
 
 func ValidateRequest(req models.CreateUserRequest, db *gorm.DB) error {
 	if ok := postgresql.CheckExistsInTable(db, "users", "email = ?", req.Email); ok {
-		return errors.New("user with this email already exists")
+		return errors.New("user already exists with the given email")
 	}
 	if req.Gender != "" && req.Gender != "male" && req.Gender != "female" {
 		return errors.New("invalid gender")
 	}
-
+	if !utils.ValidateEmail(req.Email) {
+		return errors.New("email address is invalid")
+	}
 	if req.DateOfBirth == "" {
 		return errors.New("date of birth is required")
 	}

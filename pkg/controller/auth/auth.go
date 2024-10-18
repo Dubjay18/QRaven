@@ -26,9 +26,9 @@ func (base *Controller) CreateUser(c *gin.Context) {
 		var rd utils.Response
 
 		if ve, ok := err.(validator.ValidationErrors); ok {
-			rd = utils.BuildErrorResponse(http.StatusBadRequest, "error", "failed to validate request", utils.ValidationResponse(ve, base.Validator, req), nil)
+			rd = utils.BuildErrorResponse(http.StatusUnprocessableEntity, "error", "Validation failed", utils.ValidationResponse(ve, base.Validator, req), nil)
 
-			c.JSON(http.StatusBadRequest, rd)
+			c.JSON(http.StatusUnprocessableEntity, rd)
 			return
 		}
 		// base.Logger.Error(err)
@@ -47,7 +47,7 @@ func (base *Controller) CreateUser(c *gin.Context) {
 	}
 	err = authService.ValidateRequest(req, base.Db.Postgresql)
 	if err != nil {
-		rd := utils.BuildErrorResponse(http.StatusBadRequest, "error", "Bad request", err, nil)
+		rd := utils.BuildErrorResponse(http.StatusBadRequest, "error", err.Error(), err, nil)
 		c.JSON(http.StatusBadRequest, rd)
 		return
 	}
