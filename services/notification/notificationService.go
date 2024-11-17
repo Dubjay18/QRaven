@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
+	"qraven/internal/models"
 	"qraven/pkg/repository/storage"
 )
 
@@ -36,6 +37,17 @@ func ExpoNotify(c *gin.Context, db *storage.Database) error {
 	// Validate responses
 	if response.ValidateResponse() != nil {
 		return errors.New("failed to send notification")
+	}
+	return nil
+}
+
+func SaveExpoToken(c *gin.Context, db storage.Database, token string) error {
+	expoPushToken := models.ExpoPushToken{
+		Token: token,
+	}
+	err := db.Postgresql.Create(&expoPushToken).Error
+	if err != nil {
+		return err
 	}
 	return nil
 }
