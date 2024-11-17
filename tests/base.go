@@ -3,6 +3,7 @@ package tests
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -78,7 +79,7 @@ func AssertValidationError(t *testing.T, response map[string]interface{}, field 
 
 // helper to signup a user
 func SignupUser(t *testing.T, r *gin.Engine, auth auth.Controller, userSignUpData models.CreateUserRequest) {
-
+	log.Println(userSignUpData, "sign")
 	r.POST(SignupPath, auth.CreateUser)
 
 	var b bytes.Buffer
@@ -91,6 +92,8 @@ func SignupUser(t *testing.T, r *gin.Engine, auth auth.Controller, userSignUpDat
 
 	rr := httptest.NewRecorder()
 	r.ServeHTTP(rr, req)
+	data := ParseResponse(rr)
+	log.Println(data)
 }
 
 // help to fetch user token

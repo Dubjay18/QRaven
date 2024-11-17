@@ -73,6 +73,7 @@ func (base *Controller) Login(c *gin.Context) {
 			return
 		}
 		rd = utils.BuildErrorResponse(http.StatusBadRequest, "error", "failed to parse request", err, nil)
+		utils.LogAndPrint(base.Logger, err.Error())
 		c.JSON(http.StatusBadRequest, rd)
 		return
 	}
@@ -86,6 +87,7 @@ func (base *Controller) Login(c *gin.Context) {
 
 	if res, code, err := authService.Login(req, base.Db.Postgresql); err != nil {
 		rd := utils.BuildErrorResponse(code, "error", "failed to login", err, nil)
+		utils.LogAndPrint(base.Logger, err.Error())
 		c.JSON(code, rd)
 		return
 	} else {

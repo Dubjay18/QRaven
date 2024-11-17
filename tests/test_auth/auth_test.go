@@ -4,6 +4,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
@@ -13,9 +15,6 @@ import (
 	"qraven/tests"
 	"qraven/utils"
 	"testing"
-
-	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 )
 
 func TestUserSignup(t *testing.T) {
@@ -116,4 +115,107 @@ func TestUserSignup(t *testing.T) {
 
 	}
 
+}
+
+func TestUserLogin(t *testing.T) {
+	logger := tests.Setup()
+	gin.SetMode(gin.TestMode)
+	validatorRef := validator.New()
+	db := storage.Connection()
+	var (
+		loginPath = "/api/v1/auth/login"
+		loginURI  = url.URL{Path: loginPath}
+		// currUUID       = utils.GenerateUUID()
+		userSignUpData = models.CreateUserRequest{
+			Email:       "testuser@qa.team",
+			FirstName:   "test",
+			LastName:    "user",
+			Password:    "password",
+			Gender:      "female",
+			DateOfBirth: "1990-01-01",
+			Role:        "user",
+		}
+	)
+
+	loginTests := []struct {
+		Name         string
+		RequestBody  models.UserLoginRequest
+		ExpectedCode int
+		Message      string
+	}{
+		{
+			Name: "OK email login successful",
+			RequestBody: models.UserLoginRequest{
+				Email:    userSignUpData.Email,
+				Password: userSignUpData.Password,
+			},
+			ExpectedCode: http.StatusOK,
+			Message:      "user login successfully",
+		}, {
+			Name:         "password not provided",
+			RequestBody:  models.UserLoginRequest{},
+			ExpectedCode: http.StatusBadRequest,
+		}, {
+			Name: "username or phone or email not provided",
+			RequestBody: models.UserLoginRequest{
+				Password: userSignUpData.Password,
+			},
+			ExpectedCode: http.StatusBadRequest,
+		}, {
+			Name: "email does not exist",
+			RequestBody: models.UserLoginRequest{
+				Email:    utils.GenerateUUID(),
+				Password: userSignUpData.Password,
+			},
+			ExpectedCode: http.StatusBadRequest,
+		}, {
+			Name: "incorrect password",
+			RequestBody: models.UserLoginRequest{
+				Email:    "testuser@qa.team",
+				Password: "incorrect",
+			},
+			ExpectedCode: http.StatusBadRequest,
+		},
+	}
+
+	auth := auth.Controller{Db: db, Validator: validatorRef, Logger: logger}
+	r := gin.Default()
+	tests.SignupUser(t, r, auth, userSignUpData)
+	r.POST(loginPath, auth.Login)
+
+	for _, test := range loginTests {
+		t.Run(test.Name, func(t *testing.T) {
+			var b bytes.Buffer
+			json.NewEncoder(&b).Encode(test.RequestBody)
+
+			req, err := http.NewRequest(http.MethodPost, loginURI.String(), &b)
+			if err != nil {
+				t.Fatal(err)
+			}
+
+			req.Header.Set("Content-Type", "application/json")
+
+			rr := httptest.NewRecorder()
+			r.ServeHTTP(rr, req)
+
+			tests.AssertStatusCode(t, rr.Code, test.ExpectedCode)
+
+			data := tests.ParseResponse(rr)
+
+			code := int(data["status_code"].(float64))
+			tests.AssertStatusCode(t, code, test.ExpectedCode)
+
+			if test.Message != "" {
+				message := data["message"]
+				if message != nil {
+					tests.AssertResponseMessage(t, message.(string), test.Message)
+				} else {
+					tests.AssertResponseMessage(t, "", test.Message)
+				}
+
+			}
+
+		})
+
+	}
 }

@@ -47,13 +47,13 @@ func ResponseMessage(code int, status string, name string, message string, err i
 	}
 
 	var errorField interface{}
-    if err != nil {
-        if e, ok := err.(error); ok {
-            errorField = e.Error()
-        } else {
-            errorField = err
-        }
-    }
+	if err != nil {
+		if e, ok := err.(error); ok {
+			errorField = e.Error()
+		} else {
+			errorField = err
+		}
+	}
 	res := Response{
 		StatusCode: code,
 		Name:       name,
@@ -72,7 +72,6 @@ func UnauthorisedResponse(code int, status string, name string, message string) 
 	res := ResponseMessage(http.StatusUnauthorized, status, name, message, nil, nil, nil, nil)
 	return res
 }
-
 
 func ValidationResponse(err error, validate *validator.Validate, obj interface{}) map[string]string {
 	errs := err.(validator.ValidationErrors)

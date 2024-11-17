@@ -126,8 +126,8 @@ func Login(req models.UserLoginRequest, db *gorm.DB) (gin.H, int, error) {
 		responseData gin.H
 	)
 	// Check if the user email exists
-	exists := postgresql.CheckExists(db, &user, "email = ?", req.Email)
-	if !exists {
+
+	if ok := postgresql.CheckExistsInTable(db, "users", "email = ?", req.Email); !ok {
 		return responseData, http.StatusBadRequest, fmt.Errorf("invalid credentials")
 	}
 
@@ -135,10 +135,12 @@ func Login(req models.UserLoginRequest, db *gorm.DB) (gin.H, int, error) {
 	if err != nil {
 		return nil, http.StatusNotFound, errors.New("user not found")
 	}
-	if !utils.CompareHash(req.Password, user.Password) {
-		return nil, http.StatusUnauthorized, errors.New("invalid password")
+	log.Println(userData.Password, user.Password)
+
+	if !utils.CompareHash(req.Password, userData.Password) {
+		return nil, http.StatusBadRequest, errors.New("invalid password")
 	}
-	tokenData, err := middleware.CreateToken(user)
+	tokenData, err := middleware.CreateToken(*userData)
 	if err != nil {
 		return responseData, http.StatusInternalServerError, fmt.Errorf("error saving token: " + err.Error())
 	}
@@ -148,7 +150,7 @@ func Login(req models.UserLoginRequest, db *gorm.DB) (gin.H, int, error) {
 		"exp":          strconv.Itoa(int(tokenData.ExpiresAt.Unix())),
 	}
 
-	access_token := models.AccessToken{ID: tokenData.AccessUuid, OwnerID: user.ID}
+	access_token := models.AccessToken{ID: tokenData.AccessUuid, OwnerID: userData.ID}
 
 	err = access_token.CreateAccessToken(db, tokens)
 
