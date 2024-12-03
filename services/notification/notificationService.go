@@ -1,4 +1,4 @@
-package notification
+package notificationService
 
 import (
 	"errors"
@@ -6,6 +6,7 @@ import (
 	expo "github.com/oliveroneill/exponent-server-sdk-golang/sdk"
 	"qraven/internal/models"
 	"qraven/pkg/repository/storage"
+	"time"
 )
 
 func ExpoNotify(c *gin.Context, db *storage.Database) error {
@@ -50,4 +51,8 @@ func SaveExpoToken(c *gin.Context, db storage.Database, token string) error {
 		return err
 	}
 	return nil
+}
+
+func CleanupExpiredTokens(db *storage.Database) error {
+	return db.Postgresql.Where("expires_at < ?", time.Now()).Delete(&models.ExpoPushToken{}).Error
 }

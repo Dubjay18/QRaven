@@ -26,6 +26,7 @@ cronlogs/
 config.yaml
 _ignore/
 app.env
+app-prod.env
 tmp/
 .idea/
 

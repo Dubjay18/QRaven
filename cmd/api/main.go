@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"github.com/go-playground/validator/v10"
+	"github.com/robfig/cron/v3"
+	notificationService "qraven/services/notification"
 
 	"log"
 	"qraven/internal/config"
@@ -42,6 +44,18 @@ func main() {
 		// call the seed function
 		// seed.SeedDatabase(db.Postgresql)
 	}
+	c := cron.New()
+	c.AddFunc("@daily", func() {
+		err := notificationService.CleanupExpiredTokens(db)
+		if err != nil {
+			log.Println("Error cleaning up expired tokens:", err)
+		} else {
+			log.Println("Expired tokens cleaned up successfully")
+		}
+	})
+	c.Start()
+
+	select {} // Keep the application running
 
 	r := router.Setup(logger, validatorRef, db, &configuration.App)
 	utils.LogAndPrint(logger, fmt.Sprintf("Server is starting at 127.0.0.1:%s", configuration.Server.Port))
