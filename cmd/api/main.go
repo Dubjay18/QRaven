@@ -55,7 +55,7 @@ func main() {
 	})
 	c.Start()
 
-	select {} // Keep the application running
+	// select {} // Keep the application running
 
 	r := router.Setup(logger, validatorRef, db, &configuration.App)
 	utils.LogAndPrint(logger, fmt.Sprintf("Server is starting at 127.0.0.1:%s", configuration.Server.Port))
