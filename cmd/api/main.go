@@ -59,5 +59,10 @@ func main() {
 
 	r := router.Setup(logger, validatorRef, db, &configuration.App)
 	utils.LogAndPrint(logger, fmt.Sprintf("Server is starting at 127.0.0.1:%s", configuration.Server.Port))
-	log.Fatal(r.Run(":" + configuration.Server.Port))
+	port := configuration.Server.Port
+	if port == "" {
+		port = "8019"
+
+	}
+	log.Fatal(r.Run(":" + port))
 }
