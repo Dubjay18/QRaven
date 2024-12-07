@@ -13,7 +13,8 @@ type Database struct {
 }
 
 type Redis struct {
-	REDIS_PORT string
-	REDIS_HOST string
-	REDIS_DB   string
+	REDIS_PORT     string
+	REDIS_HOST     string
+	REDIS_DB       string
+	REDIS_PASSWORD string
 }

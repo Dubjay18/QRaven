@@ -3,12 +3,12 @@ package redis
 import (
 	"context"
 	"fmt"
+	"github.com/go-redis/redis/v8"
 	"net/url"
 	"qraven/internal/config"
 	"qraven/pkg/repository/storage"
 	"qraven/utils"
 	"strconv"
-	"github.com/go-redis/redis/v8"
 )
 
 var (
@@ -19,7 +19,7 @@ var (
 func ConnectToRedis(logger *utils.Logger, configDatabases config.Redis) *redis.Client {
 	dbsCV := configDatabases
 	utils.LogAndPrint(logger, "connecting to redis server")
-	connectedServer := connectToDb(dbsCV.REDIS_HOST, dbsCV.REDIS_PORT, dbsCV.REDIS_DB, logger)
+	connectedServer := connectToDb(dbsCV.REDIS_HOST, dbsCV.REDIS_PORT, dbsCV.REDIS_DB, dbsCV.REDIS_PASSWORD, logger)
 
 	utils.LogAndPrint(logger, "connected to redis server")
 
@@ -28,7 +28,7 @@ func ConnectToRedis(logger *utils.Logger, configDatabases config.Redis) *redis.C
 	return connectedServer
 }
 
-func connectToDb(host, port, db string, logger *utils.Logger) *redis.Client {
+func connectToDb(host, port, db string, password string, logger *utils.Logger) *redis.Client {
 	if _, err := strconv.Atoi(port); err != nil {
 		u, err := url.Parse(port)
 		if err != nil {
@@ -53,7 +53,7 @@ func connectToDb(host, port, db string, logger *utils.Logger) *redis.Client {
 
 	redisClient := redis.NewClient(&redis.Options{
 		Addr:     addr,
-		Password: "",
+		Password: password,
 		DB:       dbInst,
 	})
 
