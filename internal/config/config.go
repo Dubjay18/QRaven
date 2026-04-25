@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"path/filepath"
 	"qraven/utils"
 
 	"github.com/mitchellh/mapstructure"
@@ -17,28 +18,39 @@ var (
 // Params = getConfig.Params
 func Setup(logger *utils.Logger, name string) *Configuration {
 	var baseConfiguration *BaseConfig
+	v := viper.New()
 
-	viper.SetConfigName(name)
-	viper.SetConfigType("env")
-	viper.AddConfigPath(".")
+	v.SetConfigType("env")
+	v.AutomaticEnv()
 
-	if err := viper.ReadInConfig(); err != nil {
-		// remove from fatal to Printf to check env
-		log.Printf("Error reading config file, %s", err)
-		log.Printf("Reading from environment variable")
+	if name != "" {
+		fileName := filepath.Base(name)
+		fileExt := filepath.Ext(fileName)
 
-		viper.AutomaticEnv()
-
-		var config BaseConfig
-
-		// bind config keys to viper
-		err := BindKeys(viper.GetViper(), config)
-		if err != nil {
-			log.Fatalf("Unable to bindkeys in struct, %v", err)
+		if fileExt != "" {
+			v.SetConfigFile(name)
+		} else {
+			v.SetConfigName(fileName)
+			v.AddConfigPath(".")
+			dirName := filepath.Dir(name)
+			if dirName != "." {
+				v.AddConfigPath(dirName)
+			}
 		}
 	}
 
-	err := viper.Unmarshal(&baseConfiguration)
+	if err := v.ReadInConfig(); err != nil {
+		log.Printf("Error reading config file, %s", err)
+		log.Printf("Reading from environment variable")
+	}
+
+	var config BaseConfig
+	err := BindKeys(v, config)
+	if err != nil {
+		log.Fatalf("Unable to bindkeys in struct, %v", err)
+	}
+
+	err = v.Unmarshal(&baseConfiguration)
 	if err != nil {
 		log.Fatalf("Unable to decode into struct, %v", err)
 	}
@@ -63,7 +75,7 @@ func BindKeys(v *viper.Viper, input interface{}) error {
 		return err
 	}
 	for k := range *envKeysMap {
-		if bindErr := viper.BindEnv(k); bindErr != nil {
+		if bindErr := v.BindEnv(k); bindErr != nil {
 			return bindErr
 		}
 	}

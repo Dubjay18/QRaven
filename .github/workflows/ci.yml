@@ -1,0 +1,92 @@
+name: CI
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+
+jobs:
+  test-and-verify:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: qraven
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      APP_NAME: QRaven
+      APP_MODE: debug
+      APP_URL: http://localhost:8080
+      SERVER_PORT: 8080
+      SERVER_SECRET: test-secret
+      SERVER_ACCESSTOKENEXPIREDURATION: 24
+      REQUEST_PER_SECOND: 5
+      TRUSTED_PROXIES: "[]"
+      EXEMPT_FROM_THROTTLE: "[]"
+      DB_HOST: 127.0.0.1
+      DB_PORT: 5432
+      DB_CONNECTION: postgres
+      USERNAME: postgres
+      PASSWORD: postgres
+      DB_NAME: qraven
+      SSLMODE: disable
+      TIMEZONE: UTC
+      MIGRATE: true
+      TEST_DB_HOST: 127.0.0.1
+      TEST_DB_PORT: 5432
+      TEST_DB_CONNECTION: postgres
+      TEST_USERNAME: postgres
+      TEST_PASSWORD: postgres
+      TEST_DB_NAME: qraven
+      TEST_SSLMODE: disable
+      TEST_TIMEZONE: UTC
+      TEST_MIGRATE: true
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      REDIS_DB: 0
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Download dependencies
+        run: go mod download
+
+      - name: Build
+        run: go build -v ./...
+
+      - name: Run tests
+        run: go test ./tests/*/ -v
+
+      - name: Install swag
+        run: go install github.com/swaggo/swag/cmd/swag@v1.16.3
+
+      - name: Regenerate swagger
+        run: swag init --generalInfo cmd/api/main.go --output ./docs
+
+      - name: Check swagger drift
+        run: git diff --exit-code -- docs/docs.go docs/swagger.json docs/swagger.yaml

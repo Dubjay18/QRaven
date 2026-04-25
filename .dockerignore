@@ -1,0 +1,12 @@
+.git
+.gitignore
+.github
+.vscode
+.idea
+main
+tmp
+logs
+cronlogs
+*.log
+*.test
+*.out

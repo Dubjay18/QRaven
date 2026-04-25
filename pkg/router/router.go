@@ -2,7 +2,7 @@ package router
 
 import (
 	"net/http"
-	_ "qraven/cmd/api/docs"
+	_ "qraven/docs"
 	"qraven/internal/config"
 	"qraven/pkg/middleware"
 	"qraven/pkg/repository/storage"
@@ -11,7 +11,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
-	"github.com/swaggo/files"
+	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
@@ -53,8 +53,9 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 	Auth(r, ApiVersion, validator, db, logger)
 	Event(r, ApiVersion, validator, db, logger)
 	Ticket(r, ApiVersion, validator, db, logger)
+	Payment(r, ApiVersion, validator, db, logger)
 
-	r.StaticFile("/swagger.yaml", "static/swagger.yaml")
+	r.StaticFile("/swagger.yaml", "docs/swagger.yaml")
 	url := ginSwagger.URL("/swagger.yaml")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	api.GET("/", func(c *gin.Context) {

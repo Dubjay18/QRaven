@@ -72,3 +72,7 @@ func (t *Ticket) CreateTicket(db *gorm.DB) error {
 func (t *Ticket) GetTicketByID(db *gorm.DB) error {
 	return db.First(t, t.ID).Error
 }
+
+func (t *Ticket) UpdateStatus(db *gorm.DB, status int) error {
+	return db.Model(&Ticket{}).Where("id = ?", t.ID).Update("status", status).Error
+}

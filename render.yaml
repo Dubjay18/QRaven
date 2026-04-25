@@ -1,0 +1,53 @@
+services:
+  - type: web
+    name: qraven-api
+    runtime: docker
+    plan: starter
+    dockerfilePath: ./Dockerfile
+    healthCheckPath: /api/v1/
+    autoDeploy: true
+    envVars:
+      - key: APP_NAME
+        value: QRaven
+      - key: APP_MODE
+        value: release
+      - key: APP_URL
+        sync: false
+      - key: SERVER_PORT
+        value: 10000
+      - key: SERVER_SECRET
+        sync: false
+      - key: SERVER_ACCESSTOKENEXPIREDURATION
+        value: 24
+      - key: REQUEST_PER_SECOND
+        value: 5
+      - key: TRUSTED_PROXIES
+        value: "[]"
+      - key: EXEMPT_FROM_THROTTLE
+        value: "[]"
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_CONNECTION
+        value: postgres
+      - key: USERNAME
+        sync: false
+      - key: PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: SSLMODE
+        value: require
+      - key: TIMEZONE
+        value: UTC
+      - key: MIGRATE
+        value: false
+      - key: REDIS_HOST
+        sync: false
+      - key: REDIS_PORT
+        sync: false
+      - key: REDIS_DB
+        value: 0
+      - key: PAYSTACK_SECRET_KEY
+        sync: false

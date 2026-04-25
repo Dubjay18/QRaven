@@ -57,6 +57,17 @@ type InitializePaymentResponse struct {
 	PaymentTime   string  `json:"payment_time"`
 }
 
+type UpdatePaymentStatusRequest struct {
+	Status int `json:"status" binding:"required"`
+}
+
+type UpdatePaymentStatusResponse struct {
+	PaymentID     string `json:"payment_id"`
+	TicketID      string `json:"ticket_id"`
+	PaymentStatus int    `json:"payment_status"`
+	TicketStatus  int    `json:"ticket_status"`
+}
+
 func (p *Payments) Create(db *gorm.DB) error {
 	return db.Create(p).Error
 }
