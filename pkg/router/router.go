@@ -56,6 +56,10 @@ func Setup(logger *utils.Logger, validator *validator.Validate, db *storage.Data
 	Payment(r, ApiVersion, validator, db, logger)
 
 	r.StaticFile("/swagger.yaml", "docs/swagger.yaml")
+
+	// serve static assets and landing page
+	r.Static("/static", "static")
+	r.StaticFile("/", "static/landing.html")
 	url := ginSwagger.URL("/swagger.yaml")
 	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
 	api.GET("/", func(c *gin.Context) {
